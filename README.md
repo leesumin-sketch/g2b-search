@@ -1,35 +1,37 @@
-# 나라장터 입찰공고 검색 — Streamlit 배포용
+# 나라장터 입찰공고 검색 (Streamlit 배포용)
 
-## 구성
-- `app.py`: 검색 화면, 결과표, 엑셀 다운로드
-- `g2b_api.py`: 원본 검색 로직 기반 (기본 마감공고 제외 / 체크 시 포함)
-- `requirements.txt`: Python 패키지 목록
-- `.gitignore`: API 인증키 등 비밀 파일 업로드 방지
+## 기능
+- 키워드(쉼표 구분), 검색 기간, 업무구분, 마감공고 포함 여부 검색
+- 공고명을 클릭하면 API에서 제공한 **나라장터 원문 URL을 새 탭**으로 엽니다.
+- 공고번호/기관/마감일/예산을 목록에서 확인
+- 엑셀 다운로드는 접힌 선택 메뉴로 유지
+- API 키는 소스코드에 저장하지 않음
 
-## GitHub에 업로드
-1. GitHub → New repository → `g2b-search` 생성
-2. 이 폴더 **안의** `app.py`, `g2b_api.py`, `requirements.txt`, `README.md`, `.gitignore` 업로드 후 Commit changes
-3. 인증키는 **절대 코드나 GitHub 파일에 넣지 마세요.**
+## GitHub 업로드
+1. ZIP 압축을 풉니다.
+2. GitHub 저장소를 만든 뒤 `app.py`, `g2b_api.py`, `requirements.txt`, `.gitignore`, `README.md`를 업로드합니다.
+3. **API 인증키나 `.streamlit/secrets.toml` 파일은 업로드하지 마세요.**
 
 ## Streamlit Community Cloud 배포
-1. https://share.streamlit.io/ 에서 GitHub로 로그인
-2. Create app → GitHub 저장소 선택
-3. Main file path: `app.py`
-4. Advanced settings → Secrets 에 다음 형식으로 설정:
+1. https://share.streamlit.io 에 로그인합니다.
+2. Create app → GitHub 저장소 선택 → Main file path `app.py`.
+3. Advanced settings → Secrets에 아래 내용을 등록합니다.
 
 ```toml
-G2B_API_KEY = "여기에_현재_인증키_입력"
+G2B_API_KEY = "본인의_공공데이터포털_API_키"
 ```
 
-5. Deploy 클릭 → 발급된 `*.streamlit.app` 주소 접속
-
-**참고:** 인증키를 바꿀 필요는 없지만, 기존 업로드 코드에 키가 포함되어 있었으므로 외부에 공개된 적이 있다면 재발급을 권장합니다. GitHub 공개 저장소에는 이 배포용 파일만 올리세요. 웹 앱을 공개하면 외부인이 API 호출을 유발할 수 있으니 필요하면 앱 접근 제한을 설정하세요.
+4. Deploy를 클릭합니다. 이미 배포한 앱이라면 GitHub 저장소에서 파일을 교체하면 재배포됩니다.
 
 ## 로컬 실행
 ```bash
 pip install -r requirements.txt
-# 환경변수 G2B_API_KEY 설정 후
+# 환경변수 G2B_API_KEY를 설정한 뒤
 streamlit run app.py
 ```
 
-실제 API 연결은 인증키·공공데이터포털 서비스 상태에 따라 달라집니다.
+## 참고
+- 링크는 API의 `bidNtceDtlUrl`을 사용하며, HTTPS 나라장터(`g2b.go.kr` 및 하위 도메인) 링크만 표시합니다.
+- API가 URL을 제공하지 않거나 다른 도메인 URL을 제공하면 링크가 표시되지 않습니다.
+- 실제 API 응답 및 나라장터 상세 페이지 이동은 배포 후 확인이 필요합니다.
+- 공개 앱은 누구나 접근할 수 있으므로 사내 전용이면 별도 접근 제한을 구성하세요.
