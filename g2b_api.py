@@ -14,14 +14,14 @@ CHUNK_DAYS = 6
 class G2BError(Exception):
     pass
 
-def call(op, params, api_key, session=None, retries=3):
+def call(op, params, api_key, session=None, retries=3, base_url=None):
     if not api_key:
         raise G2BError('API 인증키가 설정되지 않았습니다. 배포 환경의 G2B_API_KEY를 확인하세요.')
     client = session or requests
     payload = {'serviceKey': api_key, 'type':'json', **params}
     for attempt in range(retries):
         try:
-            response = client.get(f'{BASE}/{op}', params=payload, timeout=30)
+            response = client.get(f'{base_url or BASE}/{op}', params=payload, timeout=30)
             if response.status_code in (401,403):
                 raise G2BError('API 인증 오류: 공공데이터포털 활용 승인 및 인증키를 확인하세요.')
             if response.status_code in (429,500,502,503,504) and attempt < retries-1:

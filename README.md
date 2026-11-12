@@ -1,37 +1,28 @@
-# 나라장터 입찰공고 검색 (Streamlit 배포용)
+# 나라장터 입찰공고·사전규격 통합검색
 
-## 기능
-- 키워드(쉼표 구분), 검색 기간, 업무구분, 마감공고 포함 여부 검색
-- 공고명을 클릭하면 API에서 제공한 **나라장터 원문 URL을 새 탭**으로 엽니다.
-- 공고번호/기관/마감일/예산을 목록에서 확인
-- 엑셀 다운로드는 접힌 선택 메뉴로 유지
-- API 키는 소스코드에 저장하지 않음
-
-## GitHub 업로드
-1. ZIP 압축을 풉니다.
-2. GitHub 저장소를 만든 뒤 `app.py`, `g2b_api.py`, `requirements.txt`, `.gitignore`, `README.md`를 업로드합니다.
-3. **API 인증키나 `.streamlit/secrets.toml` 파일은 업로드하지 마세요.**
+## 변경 사항
+- 입찰공고/사전규격 검색 선택, 용역·물품·공사·외자 검색
+- API에서 제공하는 공식 상세주소가 있을 때 공고명 클릭으로 새 탭 열기
+- 상단 `🏛️ 나라장터 공식 홈페이지 바로가기` 버튼: 공식 사이트의 메뉴를 사용하기 위한 메인 링크
+- 선택형 엑셀 다운로드
 
 ## Streamlit Community Cloud 배포
-1. https://share.streamlit.io 에 로그인합니다.
-2. Create app → GitHub 저장소 선택 → Main file path `app.py`.
-3. Advanced settings → Secrets에 아래 내용을 등록합니다.
+1. ZIP 압축 해제 후 `app.py`, `g2b_api.py`, `prespec_api.py`, `requirements.txt`, `.gitignore`, `README.md`를 GitHub 저장소 최상위에 업로드합니다.
+2. 기존 배포 앱이라면 GitHub의 같은 파일을 교체하면 됩니다. **새로 추가된 `prespec_api.py`도 반드시 업로드**합니다.
+3. Streamlit Community Cloud → 앱 → Settings → Secrets에 다음처럼 등록합니다.
 
 ```toml
-G2B_API_KEY = "본인의_공공데이터포털_API_키"
+G2B_API_KEY = "본인의_나라장터_입찰공고_API_키"
+# 사전규격 서비스에 별도 인증키가 필요할 때만 아래 줄 사용
+# G2B_PRESPEC_API_KEY = "본인의_사전규격_API_키"
 ```
 
-4. Deploy를 클릭합니다. 이미 배포한 앱이라면 GitHub 저장소에서 파일을 교체하면 재배포됩니다.
+4. Main file path는 `app.py`입니다. 배포 후 검색 기능을 확인합니다.
 
-## 로컬 실행
-```bash
-pip install -r requirements.txt
-# 환경변수 G2B_API_KEY를 설정한 뒤
-streamlit run app.py
-```
-
-## 참고
-- 링크는 API의 `bidNtceDtlUrl`을 사용하며, HTTPS 나라장터(`g2b.go.kr` 및 하위 도메인) 링크만 표시합니다.
-- API가 URL을 제공하지 않거나 다른 도메인 URL을 제공하면 링크가 표시되지 않습니다.
-- 실제 API 응답 및 나라장터 상세 페이지 이동은 배포 후 확인이 필요합니다.
-- 공개 앱은 누구나 접근할 수 있으므로 사내 전용이면 별도 접근 제한을 구성하세요.
+## 중요한 확인 사항
+- 사전규격 검색은 **조달청_나라장터 사전규격정보서비스** 별도 활용신청 승인이 필요할 수 있습니다: https://www.data.go.kr/data/15129437/openapi.do
+- 이 버전의 사전규격 검색은 API의 검색조건 엔드포인트를 호출하고, 제목 키워드를 응답 데이터에서 필터링합니다. 실제 API의 필드·검색조건은 서비스 응답에 따라 조정이 필요할 수 있습니다.
+- 사전규격 상세 URL이 API 응답에 없으면 **잘못된 상세 URL을 추측해 만들지 않습니다**. 이 경우 상단의 나라장터 메인 링크로 이동하여 번호로 검색하세요.
+- 나라장터 상단 메뉴는 나라장터에서 관리합니다. 외부 앱에서 상세 페이지에 메뉴를 강제로 표시할 수 없습니다.
+- 인증키는 코드나 GitHub에 넣지 말고 Streamlit Secrets에서 관리하세요. 기존 키가 공개된 적이 있다면 재발급을 권장합니다.
+- 실제 API 통신은 배포 후 인증키로 테스트해야 합니다.
