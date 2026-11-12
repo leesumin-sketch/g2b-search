@@ -3,7 +3,7 @@ import html
 import io
 import os
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 import pandas as pd
 import streamlit as st
@@ -81,7 +81,7 @@ if st.session_state.get('mode') == mode:
         st.info('검색 결과가 없습니다. 사전규격 검색이 실패했다면 별도 API 활용신청 승인 여부도 확인해 주세요.')
     else:
         st.metric(f'{mode} 검색 결과',f'{len(df):,}건')
-        st.caption('원문 상세주소가 API에서 제공된 항목만 제목에 링크가 표시됩니다. 공식 상단 메뉴는 위의 나라장터 홈페이지 버튼으로 이용하세요.')
+        st.caption('사전규격명은 클릭해 상세정보를 확인할 수 있습니다. 공식 상세주소가 제공되면 나라장터 원문이 새 탭으로 열립니다.')
         per_page=20
         max_page=(len(df)+per_page-1)//per_page
         page=st.number_input('페이지',min_value=1,max_value=max_page,value=min(st.session_state.get('page',1),max_page),step=1)
@@ -92,6 +92,16 @@ if st.session_state.get('mode') == mode:
             with st.container(border=True):
                 if url:
                     st.markdown(f'<a href="{html.escape(url,quote=True)}" target="_blank" rel="noopener noreferrer" style="font-size:1.08rem;font-weight:650;text-decoration:none">{html.escape(title)} ↗</a>',unsafe_allow_html=True)
+                elif mode == '사전규격':
+                    # 공식 상세 URL이 없는 API 항목은 잘못된 URL을 만들어 내지 않고
+                    # 해당 항목의 세부 정보를 앱에서 펼쳐 보여준다.
+                    with st.expander(f'📄 {title}  ·  상세정보 보기', expanded=False):
+                        st.write(f"**사전규격등록번호:** {show(item.get('사전규격등록번호'))}")
+                        st.write(f"**수요기관:** {show(item.get('수요기관'))}")
+                        st.write(f"**등록일시:** {show(item.get('등록일시'))}")
+                        st.write(f"**의견등록마감일시:** {show(item.get('의견등록마감일시'))}")
+                        st.info('이 공고는 API에서 공식 상세페이지 주소를 제공하지 않습니다. 나라장터에서 아래 등록번호로 검색하면 원문을 찾을 수 있습니다.')
+                        st.link_button('🏛️ 나라장터에서 확인 ↗', G2B_HOME)
                 else:
                     st.markdown(f'**{html.escape(title)}**')
                     st.caption('이 항목은 공식 API에서 확인 가능한 원문 상세주소가 제공되지 않았습니다.')
